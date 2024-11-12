@@ -11,7 +11,7 @@ from sqlalchemy.orm import relationship, sessionmaker
 from pdf_generator import create_pdf  # Импортируем функцию генерации PDF
 
 # Подключение к базе данных
-DATABASE_URI = 'postgresql://postgres:root@localhost:5432/asd'
+DATABASE_URI = 'postgresql://postgres:root@localhost:5432/datas'
 engine = create_engine(DATABASE_URI)
 Base = declarative_base()
 
@@ -58,7 +58,6 @@ class MasterApp(QWidget):
         top_panel.setStyleSheet("background-color: #F4E8D3; padding: 10px;")
         top_layout = QHBoxLayout(top_panel)
 
-        # Иконка и текст для верхней панели
         top_icon_label = QLabel()
         top_icon_label.setPixmap(QIcon("./logo.png").pixmap(50, 50))
         top_label = QLabel("Мастер пол")
@@ -75,7 +74,7 @@ class MasterApp(QWidget):
 
         create_pdf_button = QPushButton("Создать PDF")
         create_pdf_button.setFixedWidth(150)
-        create_pdf_button.clicked.connect(self.create_pdf_report)  # Добавляем обработчик для PDF
+        create_pdf_button.clicked.connect(self.create_pdf_report)
 
         # Добавляем элементы в верхнюю панель
         top_layout.addWidget(top_icon_label)
@@ -86,7 +85,7 @@ class MasterApp(QWidget):
         top_layout.addStretch()
         main_layout.addWidget(top_panel)
 
-        # Остальной код создания панели навигации и содержимого
+        # Создание панели навигации и содержимого
         content_layout = QHBoxLayout()
         left_panel = QWidget()
         left_panel.setFixedWidth(200)
@@ -95,7 +94,7 @@ class MasterApp(QWidget):
         left_layout = QVBoxLayout(left_panel)
         left_layout.setAlignment(Qt.AlignTop)
 
-        # Кнопки навигации с иконками
+        # Кнопки навигации
         self.partners_button = QPushButton("Партнёры")
         self.partners_button.setIcon(QIcon("./logo.png"))
         self.partners_button.setCheckable(True)
@@ -116,17 +115,21 @@ class MasterApp(QWidget):
         self.right_layout = QVBoxLayout(right_panel)
         self.right_layout.setContentsMargins(10, 10, 10, 0)
 
+        # Список партнёров
         self.partners_list = QListWidget()
         self.partners_list.setStyleSheet("background-color: #FFFFFF; border: none;")
         self.partners_list.itemClicked.connect(self.highlight_selected_partner)
         self.partners_list.itemDoubleClicked.connect(self.edit_partner)
 
+        # Загружаем данные партнёров
         self.load_partners_from_db()
 
+        # Таблица истории
         self.history_table = QTableWidget()
         self.history_table.setColumnCount(4)
         self.history_table.setHorizontalHeaderLabels(["Продукция", "Наименование партнёра", "Количество продукции", "Дата продажи"])
 
+        # Устанавливаем макет
         self.right_layout.addWidget(self.partners_list)
         content_layout.addWidget(left_panel)
         content_layout.addWidget(right_panel)
@@ -153,7 +156,7 @@ class MasterApp(QWidget):
             TypeCompany.name
         ).all()
 
-        # Открытие диалога для выбора пути сохранения PDF
+        # Выбор пути сохранения PDF
         options = QFileDialog.Options()
         file_path, _ = QFileDialog.getSaveFileName(self, "Сохранить PDF", "", "PDF Files (*.pdf);;All Files (*)", options=options)
 
@@ -161,6 +164,7 @@ class MasterApp(QWidget):
             create_pdf(partners_data, type_company_data, file_path)
 
     def load_partners_from_db(self):
+        """Загрузка списка партнеров и отображение их в виджете"""
         self.partners_list.clear()
         partners = session.query(Partners).all()
         for partner in partners:
@@ -171,21 +175,8 @@ class MasterApp(QWidget):
             self.partners_list.setItemWidget(item, item_widget)
             item.setData(Qt.UserRole, partner)
 
-    def filter_partners(self, text):
-        filtered_partners = session.query(Partners).filter(
-            (Partners.company_name.ilike(f"%{text}%")) | 
-            (Partners.director_name.ilike(f"%{text}%"))
-        ).all()
-        self.partners_list.clear()
-        for partner in filtered_partners:
-            item = QListWidgetItem()
-            item_widget = self.create_partner_item(partner)
-            item.setSizeHint(QSize(item_widget.sizeHint().width(), item_widget.sizeHint().height() + 20))
-            self.partners_list.addItem(item)
-            self.partners_list.setItemWidget(item, item_widget)
-            item.setData(Qt.UserRole, partner)
-
     def create_partner_item(self, partner=None):
+        """Форматирование виджета с информацией о партнере"""
         item_widget = QWidget()
         layout = QVBoxLayout(item_widget)
         layout.setContentsMargins(10, 10, 10, 10)
@@ -196,12 +187,20 @@ class MasterApp(QWidget):
             director_label = QLabel(f"Директор: {partner.director_name}")
             phone_label = QLabel(f"Телефон: {partner.phone}")
             rating_label = QLabel(f"Рейтинг: {partner.rating}")
-            item_widget.setProperty("partner_id", partner.id)  # Добавляем ID партнёра как свойство
+            item_widget.setProperty("partner_id", partner.id)  # ID партнёра
         else:
             type_label = QLabel("Тип | Наименование партнёра")
             director_label = QLabel("Директор")
             phone_label = QLabel("+7 223 322 22 32")
             rating_label = QLabel("Рейтинг: 10")
+
+        layout.addWidget(type_label)
+        layout.addWidget(director_label)
+        layout.addWidget(phone_label)
+        layout.addWidget(rating_label)
+        item_widget.setStyleSheet("background-color: #FFFFFF; border: 1px solid #F4E8D3; padding: 5px;")
+        return item_widget
+
 
         layout.addWidget(type_label)
         layout.addWidget(director_label)
