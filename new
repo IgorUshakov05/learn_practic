@@ -1,149 +1,118 @@
-CREATE TABLE Adress (
+-- Создание таблицы типов компаний
+CREATE TABLE type_company (
     id SERIAL PRIMARY KEY,
-    index INT,
-    region VARCHAR,
-    city VARCHAR,
-    street VARCHAR,
-    number INT
+    name VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE ProductType (
+-- Добавление нескольких типов компаний для примера
+INSERT INTO type_company (name) VALUES
+('Тип 1'),
+('Тип 2'),
+('Тип 3'),
+('Тип 4'),
+('Тип 5');
+
+-- Создание таблицы партнеров
+CREATE TABLE partners (
     id SERIAL PRIMARY KEY,
-    name VARCHAR,
-    coefficient FLOAT
+    type_partner INT REFERENCES type_company(id),
+    company_name VARCHAR(255) NOT NULL,
+    ur_adress VARCHAR(255) NOT NULL,
+    inn VARCHAR(50) NOT NULL,
+    director_name VARCHAR(255) NOT NULL,
+    phone VARCHAR(50) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    rating INT
 );
 
-CREATE TABLE Partners (
+-- Создание таблицы типов продукции
+CREATE TABLE product_type (
     id SERIAL PRIMARY KEY,
-    jur_adress INT REFERENCES Adress(id),
-    type_partner INT REFERENCES ProductType(id),
-    company_name VARCHAR,
-    inn BIGINT,
-    director_full_name VARCHAR,
-    phone VARCHAR,
-    email VARCHAR,
-    rating FLOAT
+    name VARCHAR(255) NOT NULL,
+    coefficient FLOAT NOT NULL
 );
 
-CREATE TABLE Products (
+-- Добавление типов продукции
+INSERT INTO product_type (name, coefficient) VALUES
+('Тип продукции 1', 1.0),
+('Тип продукции 2', 1.2),
+('Тип продукции 3', 1.5),
+('Тип продукции 4', 2.0),
+('Тип продукции 5', 2.5);
+
+-- Создание таблицы продуктов
+CREATE TABLE product (
     id SERIAL PRIMARY KEY,
-    id_type INT REFERENCES ProductType(id),
-    description VARCHAR,
+    type INT REFERENCES product_type(id),
+    description VARCHAR(255),
     article INT,
     price FLOAT,
     size FLOAT,
-    class INT
+    class_id INT
 );
 
-CREATE TABLE PartnerProduct (
-    id SERIAL PRIMARY KEY,
-    id_product INT REFERENCES Products(id),
-    id_partner INT REFERENCES Partners(id),
-    quantity INT,
-    date_of_sale DATE
-);
+-- Добавление нескольких продуктов
+INSERT INTO product (type, description, article, price, size, class_id) VALUES
+(1, 'Продукт 1', 1001, 500.0, 10.0, 1),
+(2, 'Продукт 2', 1002, 750.0, 12.0, 2),
+(3, 'Продукт 3', 1003, 1000.0, 15.0, 3),
+(4, 'Продукт 4', 1004, 1500.0, 18.0, 4),
+(5, 'Продукт 5', 1005, 2000.0, 20.0, 5);
 
-CREATE TABLE Materials (
+-- Создание таблицы материалов
+CREATE TABLE material (
     id SERIAL PRIMARY KEY,
-    name VARCHAR,
+    name VARCHAR(255),
     defect FLOAT
 );
 
-CREATE TABLE MaterialProduct (
+-- Добавление нескольких материалов
+INSERT INTO material (name, defect) VALUES
+('Материал 1', 0.05),
+('Материал 2', 0.10),
+('Материал 3', 0.02),
+('Материал 4', 0.15),
+('Материал 5', 0.08);
+
+-- Создание таблицы связи между продуктами и материалами
+CREATE TABLE material_product (
     id SERIAL PRIMARY KEY,
-    id_product INT REFERENCES Products(id),
-    id_material INT REFERENCES Materials(id)
+    id_product INT REFERENCES product(id),
+    id_material INT REFERENCES material(id)
 );
 
-
--- Заполнение таблицы Adress
-INSERT INTO Adress (index, region, city, street, number) VALUES
-(123456, 'Московская область', 'Москва', 'Тверская', 12),
-(234567, 'Московская область', 'Москва', 'Ленина', 34),
-(345678, 'Ленинградская область', 'Санкт-Петербург', 'Невский пр.', 21),
-(456789, 'Новосибирская область', 'Новосибирск', 'Горького', 9),
-(567890, 'Владимирская область', 'Владимир', 'Советская', 2),
-(678901, 'Воронежская область', 'Воронеж', 'Коммунистическая', 18),
-(789012, 'Краснодарский край', 'Краснодар', 'Красная', 6),
-(890123, 'Татарстан', 'Казань', 'Пушкина', 5),
-(901234, 'Свердловская область', 'Екатеринбург', '8 Марта', 3),
-(123123, 'Ростовская область', 'Ростов-на-Дону', 'Буденновский', 10);
-
--- Заполнение таблицы ProductType
-INSERT INTO ProductType (name, coefficient) VALUES
-('Электроника', 1.1),
-('Бытовая техника', 1.2),
-('Мебель', 0.9),
-('Одежда', 0.8),
-('Канцтовары', 0.7),
-('Игрушки', 0.6),
-('Косметика', 1.3),
-('Строительные материалы', 1.5),
-('Автозапчасти', 1.4),
-('Продукты питания', 1.0);
-
--- Заполнение таблицы Partners
-INSERT INTO Partners (jur_adress, type_partner, company_name, inn, director_full_name, phone, email, rating) VALUES
-(1, 1, 'ООО ЭлектроТех', 7701234567, 'Иванов Иван Иванович', '+7-900-000-0001', 'info@electrotech.ru', 4.5),
-(2, 2, 'ООО Домашний Уют', 7702345678, 'Петров Петр Петрович', '+7-900-000-0002', 'info@domashniy-uyut.ru', 4.2),
-(3, 3, 'ООО Мебель Плюс', 7703456789, 'Сидоров Сидор Сидорович', '+7-900-000-0003', 'info@mebelplus.ru', 4.3),
-(4, 4, 'ООО Модный Одежда', 7704567890, 'Козлов Виктор Викторович', '+7-900-000-0004', 'info@modno.ru', 4.1),
-(5, 5, 'ООО Канцелярия', 7705678901, 'Смирнова Мария Смирновна', '+7-900-000-0005', 'info@kanz.ru', 4.7),
-(6, 6, 'ООО Мир Детства', 7706789012, 'Федоров Алексей Алексеевич', '+7-900-000-0006', 'info@mir-detstva.ru', 4.6),
-(7, 7, 'ООО BeautyCo', 7707890123, 'Крылов Антон Антонович', '+7-900-000-0007', 'info@beautyco.ru', 4.8),
-(8, 8, 'ООО СтройМаркет', 7708901234, 'Демидова Анна Викторовна', '+7-900-000-0008', 'info@stroy.ru', 4.0),
-(9, 9, 'ООО АвтоЗапчасти', 7709012345, 'Григорьев Григорий Григорьевич', '+7-900-000-0009', 'info@autoparts.ru', 3.9),
-(10, 10, 'ООО Фрукты и Овощи', 7700123456, 'Дроздова Лариса Сергеевна', '+7-900-000-0010', 'info@fresh.ru', 4.4);
-
--- Заполнение таблицы Products
-INSERT INTO Products (id_type, description, article, price, size, class) VALUES
-(1, 'Смартфон', 1001, 15000.00, 0.2, 1),
-(2, 'Стиральная машина', 1002, 30000.00, 1.5, 2),
-(3, 'Шкаф', 1003, 12000.00, 2.0, 3),
-(4, 'Куртка', 1004, 5000.00, 0.5, 2),
-(5, 'Ручка гелевая', 1005, 30.00, 0.01, 1),
-(6, 'Кукла', 1006, 800.00, 0.1, 2),
-(7, 'Шампунь', 1007, 150.00, 0.3, 1),
-(8, 'Гипсокартон', 1008, 400.00, 2.5, 3),
-(9, 'Фильтр масляный', 1009, 500.00, 0.5, 2),
-(10, 'Яблоки', 1010, 100.00, 0.3, 1);
-
--- Заполнение таблицы PartnerProduct
-INSERT INTO PartnerProduct (id_product, id_partner, quantity, date_of_sale) VALUES
-(1, 1, 50, '2024-01-15'),
-(2, 2, 10, '2024-02-10'),
-(3, 3, 5, '2024-03-05'),
-(4, 4, 30, '2024-04-25'),
-(5, 5, 100, '2024-05-20'),
-(6, 6, 20, '2024-06-15'),
-(7, 7, 40, '2024-07-30'),
-(8, 8, 15, '2024-08-05'),
-(9, 9, 25, '2024-09-10'),
-(10, 10, 60, '2024-10-18');
-
--- Заполнение таблицы Materials
-INSERT INTO Materials (name, defect) VALUES
-('Пластик', 0.02),
-('Металл', 0.05),
-('Дерево', 0.03),
-('Ткань', 0.04),
-('Картон', 0.01),
-('Резина', 0.02),
-('Химические вещества', 0.07),
-('Стекло', 0.03),
-('Пластик переработанный', 0.05),
-('Металл с покрытием', 0.06);
-
--- Заполнение таблицы MaterialProduct
-INSERT INTO MaterialProduct (id_product, id_material) VALUES
+-- Добавление связей между продуктами и материалами
+INSERT INTO material_product (id_product, id_material) VALUES
 (1, 1),
 (2, 2),
 (3, 3),
 (4, 4),
-(5, 5),
-(6, 6),
-(7, 7),
-(8, 8),
-(9, 9),
-(10, 10);
+(5, 5);
 
+-- Сначала добавим данные в таблицу partners
+INSERT INTO partners (type_partner, company_name, ur_adress, inn, director_name,
+    phone, email, rating)
+VALUES
+(1, 'Компания 1', 'Адрес 1', '1234567890', 'Директор 1', '123-45-67', 'company1@mail.com', 5),
+(2, 'Компания 2', 'Адрес 2', '2345678901', 'Директор 2', '234-56-78', 'company2@mail.com', 4),
+(3, 'Компания 3', 'Адрес 3', '3456789012', 'Директор 3', '345-67-89', 'company3@mail.com', 3),
+(4, 'Компания 4', 'Адрес 4', '4567890123', 'Директор 4', '456-78-90', 'company4@mail.com', 2),
+(5, 'Компания 5', 'Адрес 5', '5678901234', 'Директор 5', '567-89-01', 'company5@mail.com', 1);
+
+-- Создание таблицы для партнерских продуктов (история продаж)
+CREATE TABLE partner_product (
+    id SERIAL PRIMARY KEY,
+    id_product INT REFERENCES product(id),
+    id_partner INT REFERENCES partners(id),
+    quantity INT,
+    date_of_sale DATE
+);
+
+-- Теперь добавим данные в таблицу partner_product
+INSERT INTO partner_product (id_product, id_partner, quantity, date_of_sale)
+VALUES
+(1, 1, 100, '2024-11-01'),
+(2, 2, 150, '2024-11-02'),
+(3, 3, 200, '2024-11-03'),
+(4, 4, 250, '2024-11-04'),
+(5, 5, 300, '2024-11-05');
