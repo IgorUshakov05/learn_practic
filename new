@@ -1,0 +1,56 @@
+CREATE TABLE Adress (
+    id SERIAL PRIMARY KEY,
+    index INT,
+    region VARCHAR,
+    city VARCHAR,
+    street VARCHAR,
+    number INT
+);
+
+CREATE TABLE ProductType (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR,
+    coefficient FLOAT
+);
+
+CREATE TABLE Partners (
+    id SERIAL PRIMARY KEY,
+    jur_adress INT REFERENCES Adress(id),
+    type_partner INT REFERENCES ProductType(id),
+    company_name VARCHAR,
+    inn BIGINT,
+    director_full_name VARCHAR,
+    phone VARCHAR,
+    email VARCHAR,
+    rating FLOAT
+);
+
+CREATE TABLE Products (
+    id SERIAL PRIMARY KEY,
+    id_type INT REFERENCES ProductType(id),
+    description VARCHAR,
+    article INT,
+    price FLOAT,
+    size FLOAT,
+    class INT
+);
+
+CREATE TABLE PartnerProduct (
+    id SERIAL PRIMARY KEY,
+    id_product INT REFERENCES Products(id),
+    id_partner INT REFERENCES Partners(id),
+    quantity INT,
+    date_of_sale DATE
+);
+
+CREATE TABLE Materials (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR,
+    defect FLOAT
+);
+
+CREATE TABLE MaterialProduct (
+    id SERIAL PRIMARY KEY,
+    id_product INT REFERENCES Products(id),
+    id_material INT REFERENCES Materials(id)
+);
